@@ -3,10 +3,16 @@
     <ion-buttons slot="start" defaultHref="/tabs/(films:films)">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Details</ion-title>
+    <ion-title>{{ film?.title }}</ion-title>
   </ion-toolbar>
 </ion-header>
  
 <ion-content padding>
- {{filmId}}
+ 
+  <ion-card *ngIf="film">
+    <ion-card-content>
+      {{ film.opening_crawl }}
+    </ion-card-content>
+  </ion-card>
+ 
 </ion-content>
