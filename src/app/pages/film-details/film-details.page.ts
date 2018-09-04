@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '../../service/api.service';
 import { EmailComposer } from '@ionic-native/email-composer/ngx';
-
+import { ApiService } from '../../service/api/api.service';
+import { FavoriteService } from '../../service/favorite/favorite.service';
 
 @Component({
   selector: 'app-film-details',
@@ -12,15 +12,37 @@ import { EmailComposer } from '@ionic-native/email-composer/ngx';
 export class FilmDetailsPage implements OnInit {
 
   film: any;
+  isFavorite = false;
+  filmId = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private api: ApiService, private emailComposer: EmailComposer) { }
+  constructor(
+    private activatedRoute: ActivatedRoute, private api: ApiService,
+    private emailComposer: EmailComposer, private favoriteService: FavoriteService) { }
 
   ngOnInit() {
-    const id = this.activatedRoute.snapshot.paramMap.get('id');
-    this.api.getFilm(id).subscribe(res => {
+    this.filmId = this.activatedRoute.snapshot.paramMap.get('id');
+
+    this.api.getFilm(this.filmId).subscribe(res => {
       this.film = res;
     });
+
+    this.favoriteService.isFavorite(this.filmId).then(isFav => {
+      this.isFavorite = isFav;
+    });
   }
+
+  favoriteFilm() {
+    this.favoriteService.favoriteFilm(this.filmId).then(() => {
+      this.isFavorite = true;
+    });
+  }
+
+  unfavoriteFilm() {
+    this.favoriteService.unfavoriteFilm(this.filmId).then(() => {
+      this.isFavorite = false;
+    });
+  }
+
 
   shareFilm() {
     const email = {
@@ -29,6 +51,7 @@ export class FilmDetailsPage implements OnInit {
       body: 'Can you remember the opening?<br><br>\"' + this.film.opening_crawl + '\"',
       isHtml: true
     };
+
     this.emailComposer.open(email);
   }
 
